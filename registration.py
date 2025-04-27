@@ -368,7 +368,7 @@ class Graph:
             if visited[v_idx]:  # If already visited
                 return self.vertices[v_idx].depth
 
-            best = 0  # Best depth fou
+            best = 0  # Best depth found
             for neighbor_idx in range(len(self.vertices)):
                 if self.adjacency_matrix[v_idx][neighbor_idx] == 1:  # If there's an edge
                     depth = depth_helper(neighbor_idx)
@@ -420,6 +420,15 @@ class Graph:
                             to_visit.append((neighbor, False))
         return False  # No cycles found
 
+    # Helper function for get_registration_plan (sorting)
+    def _sort_courses_depth(self, course_indices):
+        """Helper to sort courses by their depth."""
+        for i in range(len(course_indices) - 1):
+            for j in range(i + 1, len(course_indices)):
+                if self.vertices[course_indices[i]].depth < self.vertices[course_indices[j]].depth:
+                    course_indices[i], course_indices[j] = course_indices[j], course_indices[i]
+
+
 
     # TO DO
     def get_registration_plan(self):
@@ -432,9 +441,9 @@ class Graph:
         """
         courses = []  # Registration plan
 
-        prereq_count = [0] * len(self.vertices)  # Prerequisite count for each course
+        prereq_count = [0] * len(self.vertices)  # Prereq count for each course
 
-        # Count how many prerequisites each course has
+        # Count how many prereq each course has
         for course_idx in range(len(self.vertices)):
             for dependent_idx in range(len(self.vertices)):
                 if self.adjacency_matrix[course_idx][dependent_idx] == 1:
@@ -447,10 +456,7 @@ class Graph:
 
         while ready:
             # Sort ready courses by depth
-            for i in range(len(ready) - 1):
-                for j in range(i + 1, len(ready)):
-                    if self.vertices[ready[i]].depth < self.vertices[ready[j]].depth:
-                        ready[i], ready[j] = ready[j], ready[i]
+            self._sort_courses_depth(ready)
 
             semester_courses = []  # Courses taken this semester
             unlock_next = []  # Courses that become available next
